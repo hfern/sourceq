@@ -12,7 +12,7 @@ type ServerInfoMethod func(sv goseq.ServerInfo) interface{}
 var serverMethodAccessors = map[string]ServerInfoMethod{
 	"bots":          func(sv goseq.ServerInfo) interface{} { return sv.GetBots() },
 	"duration":      func(sv goseq.ServerInfo) interface{} { return sv.GetDuration() },
-	"environment":   func(sv goseq.ServerInfo) interface{} { return string(sv.GetEnvironment()) },
+	"environment":   func(sv goseq.ServerInfo) interface{} { return sv.GetEnvironment() },
 	"folder":        func(sv goseq.ServerInfo) interface{} { return sv.GetFolder() },
 	"game":          func(sv goseq.ServerInfo) interface{} { return sv.GetGame() },
 	"gameid":        func(sv goseq.ServerInfo) interface{} { return sv.GetGameID() },
@@ -66,6 +66,7 @@ var serverFieldProperties = map[string]FieldProperty{
 	"version":       FieldProperty{name: "Version", size: 5},
 	"visibility":    FieldProperty{name: "Pw.", size: 3},
 	"witnesses":     FieldProperty{name: "Witnesses", size: 10},
+	"ip":            FieldProperty{name: "IP Addr", size: 21},
 }
 
 type FieldTransformer func(Any) Any
@@ -86,6 +87,6 @@ func transformEnvironment(in Any) Any {
 			return "?"
 		}
 	default:
-		return "?"
+		return "_"
 	}
 }

@@ -73,8 +73,12 @@ func masterctx() {
 
 	//tups := make([]SvResponse, 0, numServers)
 
-	//go serialQueryServers(rec, servers, 1*time.Second)
-	go AsyncQueryServers(rec, servers, 1*time.Second)
+	if *_asyncOkay {
+		go AsyncQueryServers(rec, servers, 1*time.Second)
+	} else {
+		go serialQueryServers(rec, servers, 1*time.Second)
+	}
+
 	go printServerLine(fields, printer)
 
 	if *_showHeader {
@@ -177,7 +181,11 @@ func printServerLine(fields []FieldSpec, in <-chan SvResponse) {
 }
 
 func printHeaderLine(fields []FieldSpec, props map[string]FieldProperty) {
-	for _, field := range fields {
+	for i, field := range fields {
+
+		if i > 0 {
+			fmt.Print(*_fieldDivider)
+		}
 
 		title := field.name
 
