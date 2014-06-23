@@ -27,6 +27,10 @@ var _startIp = flag.String("start", goseq.NoAddress, "Where to start reading IPs
 
 var _showHeader = flag.Bool("header", true, "Show header w/ column names.")
 
+var _showUnreachable = flag.Bool("unreachable", false, "Show unreachable servers (couldn't be connected to).")
+
+var _showErrorSummary = flag.Bool("errors", true, "Show error summary.")
+
 var _fieldregexp = regexp.MustCompile(`\s*(([a-z]+)(=(\d+))?)\s*,?\s*`)
 
 type FieldSpec struct {
@@ -41,6 +45,11 @@ type SvResponse struct {
 }
 
 func masterctx() {
+
+	log.SetFlags(0)
+
+	unreachable := 0
+	errorsEncountererd := make([]error, 0)
 
 	userRegionStr := strings.ToUpper(*_region)
 
@@ -87,11 +96,34 @@ func masterctx() {
 
 	for i := 0; i < numServers; i++ {
 		//tups = append(tups, <-rec)
-		printer <- <-rec
+		recd := <-rec
+
+		if recd.err != nil {
+			errorsEncountererd = append(errorsEncountererd, recd.err)
+		}
+
+		if recd.err != nil && !*_showUnreachable {
+			unreachable++
+			continue
+		}
+
+		printer <- recd
 	}
 
 	close(rec)
 	close(printer)
+
+	if !*_showUnreachable {
+		log.Println(unreachable, "unreachable servers were hidden.")
+	}
+
+	if *_showErrorSummary {
+		log.Printf("Errors Encountered (%dx):\n", len(errorsEncountererd))
+
+		for _, detail := range errorsEncountererd {
+			log.Println("\t", detail)
+		}
+	}
 }
 
 func serialQueryServers(send chan SvResponse, servers []goseq.Server, timeout time.Duration) {
@@ -215,4 +247,9 @@ func printHeaderLine(fields []FieldSpec, props map[string]FieldProperty) {
 		}
 	}
 	fmt.Print("\n")
+}
+
+type ErrorCount struct {
+	err   error
+	count int
 }
