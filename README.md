@@ -17,7 +17,9 @@ To update Source Query, simply run `go get -u github.com/hfern/sourceq`
 
 #Usage
 
-##Master
+There are two types of queries that can be done with Source Query: Master Server querying and individual Source Server queying.
+
+##Master Queries
 
 Use the --json flag to output a JSON encoded array of the retrieved servers to StdOut instead of printing a table of servers.
 Diagnostic information may still be printed to StdLog. 
@@ -26,7 +28,7 @@ Diagnostic information may still be printed to StdLog.
 
 ### Fields
 
-Use a comma-delimited list of these with the --fields option.
+Use a comma-delimited list of these with the --fields flag.
 
 - _environment_: Environment OS (__L__ inux, __W__ in, __M__ ac/ __O__ s X)
 - _id_: ID of the server.
@@ -55,7 +57,7 @@ Use a comma-delimited list of these with the --fields option.
 
 ### Regions
 
-Use with the -r command.
+Use with the -r flag.
 
 - _SA_:          South America
 - _EU_:          Europe
