@@ -38,17 +38,6 @@ var masterOptions MasterQueryOptions
 
 var _fieldregexp = regexp.MustCompile(`\s*(([a-z]+)(=(\d+))?)\s*,?\s*`)
 
-type FieldSpec struct {
-	name   string
-	length int
-}
-
-type SvResponse struct {
-	err    error
-	server goseq.Server
-	info   goseq.ServerInfo
-}
-
 type infoPrinter func()
 
 func masterctx() {
@@ -111,7 +100,10 @@ func masterctx() {
 		go serialQueryServers(rec, servers, 1*time.Second)
 	}
 
-	go printServerLine(fields, printer)
+	var writer Printer = &textWriter{}
+
+	writer.Init(fields, printer)
+	go writer.Run()
 
 	if !masterOptions.NoHeader {
 		printHeaderLine(fields, serverFieldProperties)
@@ -136,6 +128,8 @@ func masterctx() {
 
 		printer <- recd
 	}
+
+	writer.Done()
 
 	close(rec)
 	close(printer)
@@ -207,38 +201,6 @@ func parseFields(spec string, properties map[string]FieldProperty) ([]FieldSpec,
 	}
 
 	return specs, nil
-}
-
-func printServerLine(fields []FieldSpec, in <-chan SvResponse) {
-
-	for sv := range in {
-		for i, field := range fields {
-			if i > 0 {
-				fmt.Print(masterOptions.Divider)
-			}
-
-			var val interface{}
-
-			if handler, ok := serverMethodAccessors[field.name]; ok {
-				val = handler(sv.info)
-			}
-
-			if handler, ok := serverProperties[field.name]; ok {
-				val = handler(sv.server)
-			}
-
-			if transformer, ok := serverFieldTransformers[field.name]; ok {
-				val = transformer(val)
-			}
-
-			written, _ := fmt.Print(val)
-
-			for ; written < field.length; written++ {
-				fmt.Print(" ")
-			}
-		}
-		fmt.Print("\n")
-	}
 }
 
 func printHeaderLine(fields []FieldSpec, props map[string]FieldProperty) {
