@@ -55,7 +55,7 @@ Use with the -r command.
 
 ### Known Filters
 
-You may use other filters than the ones listed here. These are the publicly known ones.
+You may use other filters than the ones listed here. These are the [publicly known ones](https://developer.valvesoftware.com/wiki/Master_Server_Query_Protocol#Filter).
 
 Use as -f filtername:value
 
