@@ -13,7 +13,7 @@ import (
 
 type MasterQueryOptions struct {
 	Region string `long:"region" short:"r" default:"USW" description:"Region code to get results for. See --list-regions"`
-	Async  bool   `long:"async" short:"a" default:"true" long:"async" description:"Allow async sub-querying of Source Servers to get info."`
+	Serial bool   `long:"serial" short:"s" default:"false" description:"Force serial querying of the servers."`
 	Fields string `long:"fields" default:"ip=21,name" description:"The fields to be included. Optionally includes the min-length space. See --list-fields" `
 	// TODO(hunter): Add this
 	ShowFields bool `long:"show-fields" default:"false" description:"Print details on each available field."`
@@ -98,7 +98,7 @@ func masterctx() {
 
 	//tups := make([]SvResponse, 0, numServers)
 
-	if masterOptions.Async {
+	if !masterOptions.Serial {
 		go AsyncQueryServers(rec, servers, 1*time.Second)
 	} else {
 		go serialQueryServers(rec, servers, 1*time.Second)
