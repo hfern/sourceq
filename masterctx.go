@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"github.com/hfern/goseq"
 	"log"
@@ -12,24 +11,29 @@ import (
 	"time"
 )
 
-var _region = flag.String("region", "USW", "Region code to get results for. \n"+
-	"One of USE, USW, SA, EU, AS, AU, ME, AF, OTHER.")
+type MasterQueryOptions struct {
+	Region string `long:"region" short:"r" default:"USW" description:"Region code to get results for. One of USE, USW, SA, EU, AS, AU, ME, AF, OTHER."`
+	Async  bool   `long:"async" short:"a" default:"true" long:"async" description:"Allow async sub-querying of Source Servers to get info."`
+	Fields string `long:"fields" default:"ip=21,name" description:"The fields to be included. Optionally includes the min-length space. See --showfields" `
+	// TODO(hunter): Add this
+	ShowFields bool `long:"show-fields" default:"false" description:"Print details on each available field."`
+	// TODO(hunter): Add this
+	MasterIP string `long:"ip" default:"" description:"IP of the Master server to query."`
+	Divider  string `long:"divider" default:" ¦ " description:"Characters used to seperate fields."`
+	// TODO(hunter): Add this
+	StartIP string `long:"start" default:"" description:"Where to start reading IPs from. Defaults to start of list."`
+	// TODO(hunter): Add this
+	Limit            int  `long:"limit" short:"l" default:"0" description:"Limit the result set to n successful rows."`
+	ShowHeader       bool `long:"header" short:"H" default:"true" description:"Show header w/ column names."`
+	ShowUnreachable  bool `long:"unreachable" short:"U" default:"false" description:"Show unreachable servers (couldn't be connected to)."`
+	ShowErrorSummary bool `long:"errors" short:"E" default:"false" description:"Show error summary at end of list."`
+	// TODO(hunter): Add this
+	Filters map[string]string `long:"filter" short:"f" description:"Filters to use. See --list-filters"`
+	// TODO(hunter): Add this
+	ListFilters bool `long:"list-filters" default:"false" description:"List known filters."`
+}
 
-var _asyncOkay = flag.Bool("async", true, "Allow async sub-querying of Source Servers to get info. \n"+
-	"Extreme increase of performance with this enabled.")
-
-var _printFields = flag.String("fields", "ip=21,name", "The fields to be included. Optionally includes the min-length space."+
-	"See -showfields")
-
-var _fieldDivider = flag.String("divider", " ¦ ", "Characters used to seperate fields.")
-
-var _startIp = flag.String("start", goseq.NoAddress, "Where to start reading IPs from. Defaults to start.")
-
-var _showHeader = flag.Bool("header", true, "Show header w/ column names.")
-
-var _showUnreachable = flag.Bool("unreachable", false, "Show unreachable servers (couldn't be connected to).")
-
-var _showErrorSummary = flag.Bool("errors", false, "Show error summary.")
+var masterOptions MasterQueryOptions
 
 var _fieldregexp = regexp.MustCompile(`\s*(([a-z]+)(=(\d+))?)\s*,?\s*`)
 
@@ -45,22 +49,21 @@ type SvResponse struct {
 }
 
 func masterctx() {
-
 	log.SetFlags(0)
 
 	unreachable := 0
 	errorsEncountererd := make([]error, 0)
 
-	userRegionStr := strings.ToUpper(*_region)
+	userRegionStr := strings.ToUpper(masterOptions.Region)
 
 	region, found := regionData[userRegionStr]
 
 	if !found {
-		fmt.Errorf("Region '%s' does not exist.", *_region)
+		fmt.Errorf("Region '%s' does not exist.", masterOptions.Region)
 		return
 	}
 
-	fields, err := parseFields(*_printFields, serverFieldProperties)
+	fields, err := parseFields(masterOptions.Fields, serverFieldProperties)
 
 	if err != nil {
 		log.Fatal(err)
@@ -70,7 +73,13 @@ func masterctx() {
 	master.SetRegion(region)
 	master.SetAddr(goseq.MasterSourceServers[0])
 
-	servers, err := master.Query(*_startIp)
+	startIp := string(goseq.NoAddress)
+
+	if masterOptions.StartIP != "" {
+		startIp = masterOptions.StartIP
+	}
+
+	servers, err := master.Query(startIp)
 	numServers := len(servers)
 
 	if err != nil {
@@ -82,7 +91,7 @@ func masterctx() {
 
 	//tups := make([]SvResponse, 0, numServers)
 
-	if *_asyncOkay {
+	if masterOptions.Async {
 		go AsyncQueryServers(rec, servers, 1*time.Second)
 	} else {
 		go serialQueryServers(rec, servers, 1*time.Second)
@@ -90,7 +99,7 @@ func masterctx() {
 
 	go printServerLine(fields, printer)
 
-	if *_showHeader {
+	if masterOptions.ShowHeader {
 		printHeaderLine(fields, serverFieldProperties)
 	}
 
@@ -102,7 +111,7 @@ func masterctx() {
 			errorsEncountererd = append(errorsEncountererd, recd.err)
 		}
 
-		if recd.err != nil && !*_showUnreachable {
+		if recd.err != nil && !masterOptions.ShowUnreachable {
 			unreachable++
 			continue
 		}
@@ -113,11 +122,11 @@ func masterctx() {
 	close(rec)
 	close(printer)
 
-	if !*_showUnreachable {
+	if !masterOptions.ShowUnreachable {
 		log.Println(unreachable, "unreachable servers were hidden.")
 	}
 
-	if *_showErrorSummary {
+	if masterOptions.ShowErrorSummary {
 		log.Printf("Errors Encountered (%dx):\n", len(errorsEncountererd))
 
 		for _, detail := range errorsEncountererd {
@@ -185,7 +194,7 @@ func printServerLine(fields []FieldSpec, in <-chan SvResponse) {
 	for sv := range in {
 		for i, field := range fields {
 			if i > 0 {
-				fmt.Print(*_fieldDivider)
+				fmt.Print(masterOptions.Divider)
 			}
 
 			var val interface{}
@@ -216,7 +225,7 @@ func printHeaderLine(fields []FieldSpec, props map[string]FieldProperty) {
 	for i, field := range fields {
 
 		if i > 0 {
-			fmt.Print(*_fieldDivider)
+			fmt.Print(masterOptions.Divider)
 		}
 
 		title := field.name
