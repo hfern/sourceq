@@ -5,6 +5,15 @@ Use it to get source server lists from the Valve's master servers (or
 a custom, ip-specified one).
 
 #Installation
+0. You must have [Go](http://golang.org/) Installed (minimum 1.0)
+0. Make sure your GOPATH is added to your system's PATH (it isn't by default)
+    * You can find your current GOPATH by running `go env`
+    * _Windows:_ `set PATH=%PATH%;%GOPATH%`
+    * _Linux/Mac:_ `export PATH=$PATH:$GOPATH`
+0. Run `go get github.com/hfern/sourceq` to compile & install the binary to your GOPATH
+
+### Update
+To update Source Query, simply run `go get -u github.com/hfern/sourceq`
 
 #Usage
 
