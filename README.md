@@ -13,7 +13,7 @@ a custom, ip-specified one).
 Use the --json flag to output a JSON encoded array of the retrieved servers to StdOut instead of printing a table of servers.
 Diagnostic information may still be printed to StdLog. 
 
-    sourceq mastre -l20 --json
+    sourceq master -l20 --json
 
 ### Fields
 
