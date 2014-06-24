@@ -32,6 +32,7 @@ type MasterQueryOptions struct {
 	ListFilters bool `long:"list-filters" default:"false" description:"List known filters." group:"Lists"`
 	ListRegions bool `long:"list-regions" default:"false" description:"List Regions." group:"Lists"`
 	ListFields  bool `long:"list-fields" default:"false" description:"List Server Fields." group:"Lists"`
+	Json        bool `long:"json" default:"false" description:"Output as JSON to StdOut"`
 }
 
 var masterOptions MasterQueryOptions
@@ -100,12 +101,18 @@ func masterctx() {
 		go serialQueryServers(rec, servers, 1*time.Second)
 	}
 
-	var writer Printer = &textWriter{}
+	var writer Printer
+
+	if masterOptions.Json {
+		writer = &jsonWriter{}
+	} else {
+		writer = &textWriter{}
+	}
 
 	writer.Init(fields, printer)
 	go writer.Run()
 
-	if !masterOptions.NoHeader {
+	if !masterOptions.NoHeader && !masterOptions.Json {
 		printHeaderLine(fields, serverFieldProperties)
 	}
 
@@ -136,7 +143,7 @@ func masterctx() {
 
 	log.Println()
 
-	if !masterOptions.ShowUnreachable {
+	if !masterOptions.ShowUnreachable && !masterOptions.Json {
 		log.Println(unreachable, "unreachable servers were hidden.")
 	}
 
