@@ -23,7 +23,7 @@ type MasterQueryOptions struct {
 	// TODO(hunter): Add this
 	StartIP          string `long:"start" default:"" description:"Where to start reading IPs from. Defaults to start of list."`
 	Limit            int    `long:"limit" short:"l" default:"0" description:"Limit the result set to n successful rows."`
-	ShowHeader       bool   `long:"header" short:"H" default:"true" description:"Show header w/ column names."`
+	NoHeader         bool   `long:"no-header" default:"false" description:"Don't show header w/ column names."`
 	ShowUnreachable  bool   `long:"unreachable" short:"U" default:"false" description:"Show unreachable servers (couldn't be connected to)."`
 	ShowErrorSummary bool   `long:"errors" short:"E" default:"false" description:"Show error summary at end of list."`
 	// TODO(hunter): Add this
@@ -106,7 +106,7 @@ func masterctx() {
 
 	go printServerLine(fields, printer)
 
-	if masterOptions.ShowHeader {
+	if !masterOptions.NoHeader {
 		printHeaderLine(fields, serverFieldProperties)
 	}
 
