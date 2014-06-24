@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/hfern/goseq"
+	"strings"
 )
 
 var regionData = map[string]goseq.Region{
@@ -19,8 +20,8 @@ var regionData = map[string]goseq.Region{
 
 var knownFilters = map[string]string{
 	"type":       "Servers running (d)edicated, (l)isten, or (p) SourceTV.",
-	"secure":     "(1) Servers using anti-cheat technology (VAC, but potentially others as well).",
-	"gamedir":    "Servers running the specified modification (ex. cstrike)",
+	"secure":     "(1) Servers using anti-cheat technology \n(VAC, but potentially others as well).",
+	"gamedir":    "Servers running the specified \nmodification (ex. cstrike)",
 	"map":        "Servers running the specified map (ex. cs_italy)",
 	"linux":      "Servers running on a Linux (1) platform",
 	"empty":      "Servers that are not empty (1)",
@@ -29,9 +30,9 @@ var knownFilters = map[string]string{
 	"napp":       "Servers that are NOT running game ([appid])",
 	"noplayers":  "Servers that are empty (1)",
 	"white":      "Servers that are whitelisted (1)",
-	"gametype":   "Servers with all of the given tag(s) in sv_tags (tag1,tag2,...)",
-	"gamedata":   "Servers with all of the given tag(s) in their 'hidden' tags (L4D2) (tag1,tag2,...)",
-	"gamedataor": "Servers with any of the given tag(s) in their 'hidden' tags (L4D2) (tag1,tag2,...)",
+	"gametype":   "Servers with all of the given \ntag(s) in sv_tags (tag1,tag2,...)",
+	"gamedata":   "Servers with all of the given \ntag(s) in their 'hidden' tags \n(L4D2) (tag1,tag2,...)",
+	"gamedataor": "Servers with any of the given \ntag(s) in their 'hidden' tags \n(L4D2) (tag1,tag2,...)",
 }
 
 func printKnownFiltersInfo() {
@@ -39,8 +40,32 @@ func printKnownFiltersInfo() {
 	fmt.Println("(See https://developer.valvesoftware.com/wiki/Master_Server_Query_Protocol#Filter)")
 	fmt.Println()
 
+	longest := 0
+
+	for filter, _ := range knownFilters {
+		length := len(filter)
+		if length > longest {
+			longest = length
+		}
+	}
+
+	// pad between filter name and detail
+	longest += 4
+
+	nameDetailPad := "\n" + strings.Repeat(" ", longest+4+4)
+
 	for filter, detail := range knownFilters {
-		fmt.Println("\t", filter, "\t", detail)
+		fmt.Print("    ")
+		fmt.Print(filter)
+
+		filterLength := len(filter)
+
+		for i := filterLength; i < longest; i++ {
+			fmt.Print(" ")
+		}
+
+		parts := strings.Split(detail, "\n")
+		fmt.Println(strings.Join(parts, nameDetailPad))
 	}
 
 	fmt.Println()
