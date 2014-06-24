@@ -94,18 +94,25 @@ Servers running Counter Strike currently on map de_dust2
 
     sourceq master -f gamedir:cstrike -f map:de_dust2
 
-General Examples
-================
+###Master Examples
 
-    # General help for querying master servers
-    sourceq master -?
+
+General help for querying master servers
     
-    # Get the first 20 servers' IP and Name in U.S. West.
+    sourceq master -?
+
+Get the first 20 servers' IP and Name in U.S. West.
+
     sourceq master --fields "ip,name" -l20 -r"USW" -a
 
-    # Get non-empty, non-full servers.
-    sourceq master --fields "ip,maxplayers,players,name" -f empty:1 -f full:1
+Get non-empty, non-full servers.
     
-    # List the usable filters, regions, and fields that can be used.
+    sourceq master --fields "ip,maxplayers,players,name" -f empty:1 -f full:1
+ 
+List the usable filters, regions, and fields that can be used.
+    
     sourceq master --list-filters --list-regions --list-fields
 
+Dump a JSON list of servers to the file "servers.json"
+
+    sourceq master --fields "ip,name" --json > servers.json
