@@ -21,12 +21,11 @@ type MasterQueryOptions struct {
 	MasterIP string `long:"ip" default:"" description:"IP of the Master server to query."`
 	Divider  string `long:"divider" default:" ¦ " description:"Characters used to seperate fields."`
 	// TODO(hunter): Add this
-	StartIP string `long:"start" default:"" description:"Where to start reading IPs from. Defaults to start of list."`
-	// TODO(hunter): Add this
-	Limit            int  `long:"limit" short:"l" default:"0" description:"Limit the result set to n successful rows."`
-	ShowHeader       bool `long:"header" short:"H" default:"true" description:"Show header w/ column names."`
-	ShowUnreachable  bool `long:"unreachable" short:"U" default:"false" description:"Show unreachable servers (couldn't be connected to)."`
-	ShowErrorSummary bool `long:"errors" short:"E" default:"false" description:"Show error summary at end of list."`
+	StartIP          string `long:"start" default:"" description:"Where to start reading IPs from. Defaults to start of list."`
+	Limit            int    `long:"limit" short:"l" default:"0" description:"Limit the result set to n successful rows."`
+	ShowHeader       bool   `long:"header" short:"H" default:"true" description:"Show header w/ column names."`
+	ShowUnreachable  bool   `long:"unreachable" short:"U" default:"false" description:"Show unreachable servers (couldn't be connected to)."`
+	ShowErrorSummary bool   `long:"errors" short:"E" default:"false" description:"Show error summary at end of list."`
 	// TODO(hunter): Add this
 	Filters map[string]string `long:"filter" short:"f" description:"Filters to use. See --list-filters"`
 	// TODO(hunter): Add this
@@ -124,11 +123,17 @@ func masterctx() {
 			continue
 		}
 
+		if masterOptions.Limit > 0 && i >= masterOptions.Limit {
+			continue
+		}
+
 		printer <- recd
 	}
 
 	close(rec)
 	close(printer)
+
+	log.Println()
 
 	if !masterOptions.ShowUnreachable {
 		log.Println(unreachable, "unreachable servers were hidden.")
