@@ -21,6 +21,10 @@ There are two types of queries that can be done with Source Query: Master Server
 
 ##Master Queries
 
+A `sourceq master` command will querying a Source Master Server to obtain a list of servers. 
+By default, only IPs are returned by the Master server. If you only request the IP field
+(`--fields "ip"`) then only a single request to the master server will be dispatched
+
 Use the --json flag to output a JSON encoded array of the retrieved servers to StdOut instead of printing a table of servers.
 Diagnostic information may still be printed to StdLog. 
 
@@ -28,7 +32,13 @@ Diagnostic information may still be printed to StdLog.
 
 ### Fields
 
-Use a comma-delimited list of these with the --fields flag.
+Use a comma-delimited list of these with the --fields flag. 
+
+For text-results, column lengths may optionally be specified to pad values with by appending `=X` where X is a number
+indicating the minimum field length for that column. 
+
+E.g. `--fields "ip=21,players,name=0"` will pad the IP
+column to 21 characters, use the default padding for the players column, and not pad the name column.
 
 - _environment_: Environment OS (__L__ inux, __W__ in, __M__ ac/ __O__ s X)
 - _id_: ID of the server.
@@ -57,7 +67,7 @@ Use a comma-delimited list of these with the --fields flag.
 
 ### Regions
 
-Use with the -r flag.
+Use with the -r flag. E.g. `-r "USW"` for United States West servers.
 
 - _SA_:          South America
 - _EU_:          Europe
