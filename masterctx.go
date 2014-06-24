@@ -86,6 +86,13 @@ func masterctx() {
 		startIp = masterOptions.StartIP
 	}
 
+	// Apply filters
+	filt := master.GetFilter()
+	for fname, fval := range masterOptions.Filters {
+		filt.Set(fname, fval)
+	}
+	master.SetFilter(filt)
+
 	servers, err := master.Query(startIp)
 	numServers := len(servers)
 
