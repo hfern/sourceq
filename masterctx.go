@@ -12,9 +12,9 @@ import (
 )
 
 type MasterQueryOptions struct {
-	Region string `long:"region" short:"r" default:"USW" description:"Region code to get results for. One of USE, USW, SA, EU, AS, AU, ME, AF, OTHER."`
+	Region string `long:"region" short:"r" default:"USW" description:"Region code to get results for. See --list-regions"`
 	Async  bool   `long:"async" short:"a" default:"true" long:"async" description:"Allow async sub-querying of Source Servers to get info."`
-	Fields string `long:"fields" default:"ip=21,name" description:"The fields to be included. Optionally includes the min-length space. See --showfields" `
+	Fields string `long:"fields" default:"ip=21,name" description:"The fields to be included. Optionally includes the min-length space. See --list-fields" `
 	// TODO(hunter): Add this
 	ShowFields bool `long:"show-fields" default:"false" description:"Print details on each available field."`
 	// TODO(hunter): Add this
@@ -30,7 +30,8 @@ type MasterQueryOptions struct {
 	// TODO(hunter): Add this
 	Filters map[string]string `long:"filter" short:"f" description:"Filters to use. See --list-filters"`
 	// TODO(hunter): Add this
-	ListFilters bool `long:"list-filters" default:"false" description:"List known filters."`
+	ListFilters bool `long:"list-filters" default:"false" description:"List known filters." group:"Lists"`
+	ListRegions bool `long:"list-regions" default:"false" description:"List Regions." group:"Lists"`
 }
 
 var masterOptions MasterQueryOptions
@@ -48,11 +49,12 @@ type SvResponse struct {
 	info   goseq.ServerInfo
 }
 
+type infoPrinter func()
+
 func masterctx() {
 	log.SetFlags(0)
 
-	if masterOptions.ListFilters {
-		printKnownFiltersInfo()
+	if printInfo() {
 		return
 	}
 
@@ -266,4 +268,25 @@ func printHeaderLine(fields []FieldSpec, props map[string]FieldProperty) {
 type ErrorCount struct {
 	err   error
 	count int
+}
+
+func printInfo() (done bool) {
+	done = false
+
+	infos := []struct {
+		f       infoPrinter
+		enabled bool
+	}{
+		{printKnownFiltersInfo, masterOptions.ListFilters},
+		{printRegionInfo, masterOptions.ListRegions},
+	}
+
+	for _, info := range infos {
+		if info.enabled {
+			info.f()
+			done = true
+		}
+	}
+
+	return
 }

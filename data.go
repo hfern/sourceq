@@ -69,4 +69,15 @@ func printKnownFiltersInfo() {
 	}
 
 	fmt.Println()
+
+	return
+}
+
+func printRegionInfo() {
+	fmt.Println("Valid Regions:")
+	for region, code := range regionData {
+		fmt.Println("    ", region, "\t", goseq.RegionNames[code])
+	}
+	fmt.Println()
+	return
 }
