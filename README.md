@@ -27,6 +27,8 @@ By default, only IPs are returned by the Master server. If only the IP field is 
 other fields are requested (`--fields "ip,name"`) then a single, additional request will be dispatched
 _for each ip returned by the master_ server. 
 
+You can always use `sourceq master -?` for a summary of the command line options.
+
 Use the --json flag to output a JSON encoded array of the retrieved servers to StdOut instead of printing a table of servers.
 Diagnostic information may still be printed to StdLog. 
 
