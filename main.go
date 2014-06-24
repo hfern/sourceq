@@ -24,7 +24,7 @@ func main() {
 
 	//flag.Parse()
 
-	parser := flags.NewNamedParser("Source Query", flags.Default)
+	parser := flags.NewNamedParser("sourceq", flags.Default)
 	parser.AddCommand("master", "Query Master Server",
 		"Query the Master Server for a list of Source servers. "+
 			"Display servers in row format.", &masterOptions)
