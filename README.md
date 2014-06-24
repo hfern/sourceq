@@ -7,4 +7,4 @@ Use it to query
 Usage
 =====
 
-    sourceq -region=USW -fields="ip,name"
+    sourceq -region=USW -fields="ip,name" -async 

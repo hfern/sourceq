@@ -4,7 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/Ronny95/goseq"
+	"github.com/hfern/goseq"
 	"log"
 	"regexp"
 	"strconv"

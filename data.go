@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Ronny95/goseq"
+	"github.com/hfern/goseq"
 )
 
 var regionData = map[string]goseq.Region{
