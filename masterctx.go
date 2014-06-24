@@ -32,6 +32,7 @@ type MasterQueryOptions struct {
 	// TODO(hunter): Add this
 	ListFilters bool `long:"list-filters" default:"false" description:"List known filters." group:"Lists"`
 	ListRegions bool `long:"list-regions" default:"false" description:"List Regions." group:"Lists"`
+	ListFields  bool `long:"list-fields" default:"false" description:"List Server Fields." group:"Lists"`
 }
 
 var masterOptions MasterQueryOptions
@@ -279,6 +280,7 @@ func printInfo() (done bool) {
 	}{
 		{printKnownFiltersInfo, masterOptions.ListFilters},
 		{printRegionInfo, masterOptions.ListRegions},
+		{printServerFieldProperties, masterOptions.ListFields},
 	}
 
 	for _, info := range infos {
