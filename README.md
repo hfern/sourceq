@@ -22,8 +22,10 @@ There are two types of queries that can be done with Source Query: Master Server
 ##Master Queries
 
 A `sourceq master` command will querying a Source Master Server to obtain a list of servers. 
-By default, only IPs are returned by the Master server. If you only request the IP field
-(`--fields "ip"`) then only a single request to the master server will be dispatched
+By default, only IPs are returned by the Master server. If only the IP field is requested
+(`--fields "ip"`) then only a single request to the master server will be dispatched. If
+other fields are requested (`--fields "ip,name"`) then a single, additional request will be dispatched
+_for each ip returned by the master_ server. 
 
 Use the --json flag to output a JSON encoded array of the retrieved servers to StdOut instead of printing a table of servers.
 Diagnostic information may still be printed to StdLog. 
