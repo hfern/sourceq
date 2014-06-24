@@ -29,7 +29,7 @@ var _showHeader = flag.Bool("header", true, "Show header w/ column names.")
 
 var _showUnreachable = flag.Bool("unreachable", false, "Show unreachable servers (couldn't be connected to).")
 
-var _showErrorSummary = flag.Bool("errors", true, "Show error summary.")
+var _showErrorSummary = flag.Bool("errors", false, "Show error summary.")
 
 var _fieldregexp = regexp.MustCompile(`\s*(([a-z]+)(=(\d+))?)\s*,?\s*`)
 
