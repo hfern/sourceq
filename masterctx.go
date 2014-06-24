@@ -51,6 +51,11 @@ type SvResponse struct {
 func masterctx() {
 	log.SetFlags(0)
 
+	if masterOptions.ListFilters {
+		printKnownFiltersInfo()
+		return
+	}
+
 	unreachable := 0
 	errorsEncountererd := make([]error, 0)
 
