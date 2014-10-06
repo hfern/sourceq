@@ -29,7 +29,9 @@ func main() {
 		"Query the Master Server for a list of Source servers. "+
 			"Display servers in row format.", &masterOptions)
 
-	_, err := parser.Parse()
+	parser.AddCommand("server", "Query Game Server", "Query a specific game server for information.", &serverSingleOptions)
+
+	extra, err := parser.Parse()
 
 	if err != nil {
 		return
@@ -41,6 +43,6 @@ func main() {
 		masterctx()
 	case "server":
 		ctx = SINGLESERVER
-		serverctx()
+		serverctx(extra)
 	}
 }

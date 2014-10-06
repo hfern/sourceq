@@ -68,7 +68,12 @@ func masterctx() {
 
 	master := goseq.NewMasterServer()
 	master.SetRegion(region)
-	master.SetAddr(goseq.MasterSourceServers[0])
+
+	if masterOptions.MasterIP != "" {
+		master.SetAddr(masterOptions.MasterIP)
+	} else {
+		master.SetAddr(goseq.MasterSourceServers[0])
+	}
 
 	startIp := string(goseq.NoAddress)
 
@@ -84,11 +89,12 @@ func masterctx() {
 	master.SetFilter(filt)
 
 	servers, err := master.Query(startIp)
-	numServers := len(servers)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	numServers := len(servers)
 
 	rec := make(chan SvResponse)
 	printer := make(chan SvResponse)
