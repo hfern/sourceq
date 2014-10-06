@@ -18,7 +18,7 @@ type MasterQueryOptions struct {
 	// TODO(hunter): Add this
 	ShowFields bool `long:"show-fields" default:"false" description:"Print details on each available field."`
 	// TODO(hunter): Add this
-	MasterIP string `long:"ip" default:"" description:"IP of the Master server to query."`
+	MasterIP string `long:"ip" default:"hl2master.steampowered.com:27011" description:"host:port of the Master server to query."`
 	Divider  string `long:"divider" default:" ¦ " description:"Characters used to seperate fields."`
 	// TODO(hunter): Add this
 	StartIP          string `long:"start" default:"" description:"Where to start reading IPs from. Defaults to start of list."`
@@ -69,11 +69,7 @@ func masterctx() {
 	master := goseq.NewMasterServer()
 	master.SetRegion(region)
 
-	if masterOptions.MasterIP != "" {
-		master.SetAddr(masterOptions.MasterIP)
-	} else {
-		master.SetAddr(goseq.MasterSourceServers[0])
-	}
+	master.SetAddr(masterOptions.MasterIP)
 
 	startIp := string(goseq.NoAddress)
 
