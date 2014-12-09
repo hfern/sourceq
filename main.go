@@ -14,6 +14,7 @@ const (
 
 type MainOptions struct {
 	Master MasterQueryOptions `command:"master"`
+	Server ServerQueryOptions `command:"server"`
 }
 
 var ctx Context
