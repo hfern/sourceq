@@ -13,7 +13,7 @@ type ServerQueryOptions struct {
 	NoRules   bool `long:"no-rules" short:"R" default:"false" description:"Don't list server rules."`
 	Serial    bool `long:"serial" short:"s" default:"false" description:"Force serial querying of server attributes."`
 	Json      bool `long:"json" default:"false" description:"Output as JSON to StdOut"`
-	Timeout   uint `long:"timeout" short:"t" default="1" description:"Timeout for attribute queries in seconds."`
+	Timeout   uint `long:"timeout" short:"t" default:"1" description:"Timeout for attribute queries in seconds."`
 }
 
 type DoneChannel chan int
