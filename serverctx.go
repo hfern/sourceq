@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/hfern/goseq"
 	"log"
 	"time"
@@ -13,7 +12,7 @@ type ServerQueryOptions struct {
 	NoRules   bool `long:"no-rules" short:"R" default:"false" description:"Don't list server rules."`
 	Serial    bool `long:"serial" short:"s" default:"false" description:"Force serial querying of server attributes."`
 	Json      bool `long:"json" default:"false" description:"Output as JSON to StdOut"`
-	Timeout   uint `long:"timeout" short:"t" default:"1" description:"Timeout for attribute queries in seconds."`
+	Timeout   uint `long:"timeout" short:"t" default:"2" description:"Timeout for attribute queries in seconds."`
 }
 
 type DoneChannel chan int
@@ -21,30 +20,30 @@ type DoneChannel chan int
 const DONE int = 0
 
 type MaybePlayers struct {
-	err     error
-	players []goseq.Player
+	Error   error
+	Players []goseq.Player
 }
 
 type MaybeInfo struct {
-	err  error
-	info goseq.ServerInfo
+	Error error
+	Info  goseq.ServerInfo
 }
 
 type MaybeRules struct {
-	err   error
-	rules goseq.RuleMap
+	Error error
+	Rules goseq.RuleMap
 }
 
 type ServerQueryableAttributes struct {
-	address string
-	players MaybePlayers
-	info    MaybeInfo
-	rules   MaybeRules
+	Address string
+	Players MaybePlayers
+	Info    MaybeInfo
+	Rules   MaybeRules
 }
 
 type ServerAttrPair struct {
-	server goseq.Server
-	attrs  ServerQueryableAttributes
+	Server goseq.Server
+	Attrs  ServerQueryableAttributes
 }
 
 type doIf struct {
@@ -74,18 +73,18 @@ func serverctx(serverAddresses []string) {
 	servers := make([]ServerAttrPair, len(serverAddresses))
 
 	for i, serverAddr := range serverAddresses {
-		servers[i].attrs.address = serverAddr
+		servers[i].Attrs.Address = serverAddr
 		server := goseq.NewServer()
 		err := server.SetAddress(serverAddr)
 		if err != nil {
 			log.Fatal(err)
 		}
-		servers[i].server = server
+		servers[i].Server = server
 	}
 
 	for i, _ := range servers {
 		server := &servers[i]
-		go queryServer(options, &server.server, &server.attrs, timeout, done)
+		go queryServer(options, &server.Server, &server.Attrs, timeout, done)
 		if options.Serial {
 			<-done
 		}
@@ -97,7 +96,7 @@ func serverctx(serverAddresses []string) {
 		}
 	}
 
-	fmt.Println(servers)
+	viewServerJSON(options, servers)
 }
 
 func queryServer(
@@ -115,19 +114,19 @@ func queryServer(
 		{
 			cond: !options.NoInfo,
 			call: func(donner DoneChannel) {
-				getServerInfo(server, &attrs.info, timeout, donner)
+				getServerInfo(server, &attrs.Info, timeout, donner)
 			},
 		},
 		{
 			cond: !options.NoRules,
 			call: func(donner DoneChannel) {
-				getServerRules(server, &attrs.rules, timeout, donner)
+				getServerRules(server, &attrs.Rules, timeout, donner)
 			},
 		},
 		{
 			cond: !options.NoPlayers,
 			call: func(donner DoneChannel) {
-				getServerPlayers(server, &attrs.players, timeout, donner)
+				getServerPlayers(server, &attrs.Players, timeout, donner)
 			},
 		},
 	}
@@ -151,15 +150,15 @@ func queryServer(
 
 func getServerInfo(server *goseq.Server, info *MaybeInfo, timeout time.Duration, donner DoneChannel) {
 	defer func() { donner <- DONE }()
-	info.info, info.err = (*server).Info(timeout)
+	info.Info, info.Error = (*server).Info(timeout)
 }
 
 func getServerRules(server *goseq.Server, rules *MaybeRules, timeout time.Duration, donner DoneChannel) {
 	defer func() { donner <- DONE }()
-	rules.rules, rules.err = (*server).Rules(timeout)
+	rules.Rules, rules.Error = (*server).Rules(timeout)
 }
 
 func getServerPlayers(server *goseq.Server, plys *MaybePlayers, timeout time.Duration, donner DoneChannel) {
 	defer func() { donner <- DONE }()
-	plys.players, plys.err = (*server).Players(timeout)
+	plys.Players, plys.Error = (*server).Players(timeout)
 }
