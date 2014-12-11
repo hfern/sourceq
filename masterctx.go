@@ -21,11 +21,11 @@ type MasterQueryOptions struct {
 	MasterIP string `long:"ip" default:"hl2master.steampowered.com:27011" description:"host:port of the Master server to query."`
 	Divider  string `long:"divider" default:" ¦ " description:"Characters used to seperate fields."`
 	// TODO(hunter): Add this
-	StartIP          string `long:"start" default:"" description:"Where to start reading IPs from. Defaults to start of list."`
-	Limit            int    `long:"limit" short:"l" default:"0" description:"Limit the result set to n successful rows."`
-	NoHeader         bool   `long:"no-header" default:"false" description:"Don't show header w/ column names."`
-	ShowUnreachable  bool   `long:"unreachable" short:"U" default:"false" description:"Show unreachable servers (couldn't be connected to)."`
-	ShowErrorSummary bool   `long:"errors" short:"E" default:"false" description:"Show error summary at end of list."`
+	StartIP            string `long:"start" default:"" description:"Where to start reading IPs from. Defaults to start of list."`
+	Limit              int    `long:"limit" short:"l" default:"0" description:"Limit the result set to n successful rows."`
+	NoHeader           bool   `long:"no-header" default:"false" description:"Don't show header w/ column names."`
+	NoShowUnreachable  bool   `long:"unreachable" short:"U" default:"false" description:"Don't show unreachable servers (couldn't be connected to)."`
+	NoShowErrorSummary bool   `long:"errors" short:"E" default:"false" description:"Don't show error summary at end of list."`
 	// TODO(hunter): Add this
 	Filters map[string]string `long:"filter" short:"f" description:"Filters to use. See --list-filters"`
 	// TODO(hunter): Add this
@@ -33,6 +33,7 @@ type MasterQueryOptions struct {
 	ListRegions bool `long:"list-regions" default:"false" description:"List Regions." group:"Lists"`
 	ListFields  bool `long:"list-fields" default:"false" description:"List Server Fields." group:"Lists"`
 	Json        bool `long:"json" default:"false" description:"Output as JSON to StdOut"`
+	OnlyIPs     bool `long:"only-ips" short:"Q" default:"false" description:"Only print IPs of the servers."`
 }
 
 var masterOptions MasterQueryOptions
@@ -58,6 +59,13 @@ func masterctx() {
 	if !found {
 		fmt.Errorf("Region '%s' does not exist.", masterOptions.Region)
 		return
+	}
+
+	if masterOptions.OnlyIPs {
+		masterOptions.Fields = "ip"
+		masterOptions.NoHeader = true
+		masterOptions.NoShowUnreachable = true
+		masterOptions.NoShowErrorSummary = true
 	}
 
 	fields, err := parseFields(masterOptions.Fields, serverFieldProperties)
@@ -126,7 +134,7 @@ func masterctx() {
 			errorsEncountererd = append(errorsEncountererd, recd.err)
 		}
 
-		if recd.err != nil && !masterOptions.ShowUnreachable {
+		if recd.err != nil && !masterOptions.NoShowUnreachable {
 			unreachable++
 			continue
 		}
@@ -145,11 +153,11 @@ func masterctx() {
 
 	log.Println()
 
-	if !masterOptions.ShowUnreachable && !masterOptions.Json {
+	if !masterOptions.NoShowUnreachable && !masterOptions.Json {
 		log.Println(unreachable, "unreachable servers were hidden.")
 	}
 
-	if masterOptions.ShowErrorSummary {
+	if !masterOptions.NoShowErrorSummary {
 		log.Printf("Errors Encountered (%dx):\n", len(errorsEncountererd))
 
 		for _, detail := range errorsEncountererd {
