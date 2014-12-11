@@ -162,8 +162,10 @@ func queryServer(
 	}
 
 	if !options.Serial {
-		for _ = range callbacks {
-			<-done
+		for _, cb := range callbacks {
+			if cb.cond {
+				<-done
+			}
 		}
 	}
 
