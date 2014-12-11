@@ -96,7 +96,11 @@ func serverctx(serverAddresses []string) {
 		}
 	}
 
-	viewServerJSON(options, servers)
+	if options.Json {
+		viewServerJSON(options, servers)
+	} else {
+		viewServerText(options, servers)
+	}
 }
 
 func queryServer(
