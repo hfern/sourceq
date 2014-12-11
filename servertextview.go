@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -75,7 +76,22 @@ func textFormatServerInfo(info MaybeInfo, ident Ident, options *ServerQueryOptio
 		return strings.Repeat(" ", n)
 	}
 
-	for key, val := range mapped {
+	filters := map[string]func(interface{}) interface{}{
+		"SteamID": func(interface{}) interface{} {
+			return info.Info.GetSteamID()
+		},
+	}
+
+	keys := getKeys(mapped)
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		val := mapped[key]
+
+		if _, ok := filters[key]; ok {
+			val = filters[key](val)
+		}
+
 		ident.Printf("| %s:%s %v\n", key, pad(maxKeySize-len(key)), val)
 	}
 }
@@ -92,4 +108,12 @@ func (ident *Ident) Printf(format string, args ...interface{}) {
 
 func (ident *Ident) GetPrefix() string {
 	return strings.Repeat(ident.padding, ident.level)
+}
+
+func getKeys(amap map[string]interface{}) []string {
+	keys := make([]string, 0, len(amap))
+	for key, _ := range amap {
+		keys = append(keys, key)
+	}
+	return keys
 }
