@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -26,16 +27,35 @@ var defaultIdent Ident = Ident{
 func viewServerText(options *ServerQueryOptions, servers []ServerAttrPair) {
 	for _, server := range servers {
 		textFormatServer(server, defaultIdent, options)
-		fmt.Println("\n")
 	}
 }
 
 func textFormatServer(server ServerAttrPair, ident Ident, options *ServerQueryOptions) {
+
+	if options.OnlyKeywords {
+		listKeywords(server.Attrs.Info)
+		return
+	}
+
 	ident.Println("Server: ", server.Attrs.Address)
 	ident.level++
 
 	textFormatServerInfo(server.Attrs.Info, ident, options)
 	textFormatPlayers(server.Attrs.Players, ident, options)
+
+	ident.level--
+	ident.Println("")
+}
+
+func listKeywords(info MaybeInfo) {
+	if info.Error != nil {
+		log.Println("Error fetching AS_INFO keywords: ", info.Error.Error())
+	}
+	keywords := strings.Split(info.Info.GetKeywords(), ",")
+
+	for _, kw := range keywords {
+		fmt.Println(strings.TrimSpace(kw))
+	}
 }
 
 func textFormatPlayers(players MaybePlayers, ident Ident, options *ServerQueryOptions) {
