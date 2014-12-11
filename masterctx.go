@@ -34,6 +34,7 @@ type MasterQueryOptions struct {
 	ListFields  bool `long:"list-fields" default:"false" description:"List Server Fields." group:"Lists"`
 	Json        bool `long:"json" default:"false" description:"Output as JSON to StdOut"`
 	OnlyIPs     bool `long:"only-ips" short:"Q" default:"false" description:"Only print IPs of the servers."`
+	Timeout     uint `long:"timeout" short:"T" default:"2" description:"Timeout in seconds requests to servers will last."`
 }
 
 var masterOptions MasterQueryOptions
@@ -105,10 +106,12 @@ func masterctx() {
 
 	//tups := make([]SvResponse, 0, numServers)
 
+	timeout := time.Duration(masterOptions.Timeout) * time.Second
+
 	if !masterOptions.Serial {
-		go AsyncQueryServers(rec, servers, 1*time.Second)
+		go AsyncQueryServers(rec, servers, timeout)
 	} else {
-		go serialQueryServers(rec, servers, 1*time.Second)
+		go serialQueryServers(rec, servers, timeout)
 	}
 
 	var writer Printer
