@@ -1,10 +1,10 @@
-#Source Query
+# Source Query
 
 Command line query tool for source servers. Basically a head for [goseq](https://github.com/hfern/sourceq).
 Use it to get source server lists from the Valve's master servers (or
 a custom, ip-specified one).
 
-#Installation
+# Installation
 0. You must have [Go](http://golang.org/) Installed (minimum 1.0)
 0. Make sure your GOPATH is added to your system's PATH (it isn't by default)
     * You can find your current GOPATH by running `go env`
@@ -15,11 +15,11 @@ a custom, ip-specified one).
 ### Update
 To update Source Query, simply run `go get -u github.com/hfern/sourceq`
 
-#Usage
+# Usage
 
 There are two types of queries that can be done with Source Query: Master Server querying and individual Source Server queying.
 
-##Master Queries
+## Master Queries
 
 A `sourceq master` command will querying a Source Master Server to obtain a list of servers. 
 By default, only IPs are returned by the Master server. If only the IP field is requested
@@ -119,7 +119,7 @@ Servers running Counter Strike currently on map de_dust2
 
     sourceq master -f gamedir:cstrike -f map:de_dust2
 
-###Master Examples
+### Master Examples
 
 
 General help for querying master servers
